@@ -9,6 +9,9 @@
 <body>
   <script>
     alert(navigator.userAgent)
+    alert(`isSafari(ua), ${/Version[|/]([\w.]+)(\s\w.+)?\s?Safari|like\sGecko\)\sMobile\/\w{3,}$/i.test(navigator.userAgent)}`)
+    alert(`isChrome(ua), ${/Chrome|CriOS/i.test(navigator.userAgent)}`)
+    alert(`isChrome(window.chrome), ${!!window.chrome}`)
   </script>
 </body>
 </html>
