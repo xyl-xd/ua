@@ -12,7 +12,9 @@
     // alert(`isSafari(ua), ${/Version[|/]([\w.]+)(\s\w.+)?\s?Safari|like\sGecko\)\sMobile\/\w{3,}$/i.test(navigator.userAgent)}`)
     // alert(`isChrome(ua), ${/Chrome|CriOS/i.test(navigator.userAgent)}`)
     // alert(`isChrome(window.chrome), ${!!window.chrome}`)
-    document.querySelector('.container').textContent = navigator.userAgent
+    window.onload = () => {
+      document.querySelector('.container').textContent = navigator.userAgent
+    }
   </script>
   <div class="container"></div>
 </body>
