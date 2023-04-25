@@ -1,21 +1,313 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
-</head>
-<body>
-  <script>
-    // alert(navigator.userAgent)
-    // alert(`isSafari(ua), ${/Version[|/]([\w.]+)(\s\w.+)?\s?Safari|like\sGecko\)\sMobile\/\w{3,}$/i.test(navigator.userAgent)}`)
-    // alert(`isChrome(ua), ${/Chrome|CriOS/i.test(navigator.userAgent)}`)
-    // alert(`isChrome(window.chrome), ${!!window.chrome}`)
-    window.onload = () => {
-      document.querySelector('.container').textContent = navigator.userAgent
-    }
-  </script>
-  <div class="container"></div>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+
+  <body>
+    <script>
+      const UA = (exp, ua) => {
+        return exp.test(ua);
+      };
+
+      const isAndroid = (ua) => UA(/android/i, ua);
+      const isiOS = (ua) => UA(/iPhone|iPad|iPod/i, ua);
+      const isPad = (ua) => UA(/iPad/i, ua);
+      const isMobileDevice = (ua) => /(mobi|mzbrowser)/i.test(ua);
+      const isMobileOS = (ua) => isAndroid(ua) || isiOS(ua);
+      const isMobile = (ua) =>
+        !isPad(ua) && (isMobileDevice(ua) || isMobileOS(ua));
+      const isIphone = (ua) => UA(/iPhone/i, ua);
+      const isWeb = (ua) => !isMobile(ua);
+      const isWechat = (ua) => is("Wechat", ua);
+      const isPC = (ua) => !isMobile(ua) && !isPad(ua);
+
+      const is = (device, ua) => {
+        let i;
+        for (i in browsers) {
+          if (
+            typeof device === "string" &&
+            i.toLowerCase() === device?.toLowerCase()
+          ) {
+            return browsers[i].test(ua);
+          }
+        }
+        for (i in deviceModel) {
+          if (
+            typeof device === "string" &&
+            i.toLowerCase() === device?.toLowerCase()
+          ) {
+            return deviceModel[i].test(ua);
+          }
+        }
+        throw new Error(`传入了未知的 browser 参数 -- ${device}, 请检查!!!`);
+      };
+
+      const isHuaWeiNativeBrowser = (ua) => {
+        if (
+          (is("HuaWei", ua) || is("honor", ua)) &&
+          !is("QQBrowser", ua) &&
+          !is("Opera", ua) &&
+          !is("Chrome", ua) &&
+          !is("Firefox", ua) &&
+          !is("Shoujibaidu", ua)
+        ) {
+          return true;
+        } else {
+          return false;
+        }
+      };
+
+      const deviceModel = {
+        HuaWei: /HUAWEI/i,
+        honor: /HONOR/i,
+        Lenovo: /Lenovo/i,
+      };
+
+      // 需要优先匹配的品牌浏览器
+      const brandBrowser = {
+        iOSSDK: /TapTapiOSSDK/i,
+        AndroidSDK: /TapTapAndroidSDK/i,
+        Sogou: /SE\s2\.X|SogouMobileBrowser/i,
+        Explorer2345: /2345Explorer|2345chrome|Mb2345Browser/i,
+        Liebao: /LBBROWSER|LieBaoFast/i,
+        WindowsWechat: /WindowsWechat/i, // windows 端微信，因为它的 UA 里也有 MicroMessager，为了避免与移动端微信混淆所以一定要放到 Wechat 前面
+        Wechat: /MicroMessenger/i,
+        WxWork: /wxwork/i,
+        QQBrowser: /QQBrowser/i,
+        Baidu: /BIDUBrowser|baidubrowser|BaiduHD/i,
+        UC: /UBrowser|UCBrowser|UCWEB/i,
+        MobileQQ: /Mobile\/\w{5,}\sQQ\/(\d+[.\d]+)/i,
+        Shoujibaidu: /baiduboxapp/i,
+        // Gear VR
+        OculusBrowser: /OculusBrowser/i,
+        SamsungBrowser: /samsungbrowser|SamsungBrowser/i,
+        Maxthon: /Maxthon/i,
+        Se360: /360SE/i,
+        Ee360: /360EE/i,
+        Browser360: /\bqihu|(qi?ho?o?|360)browser/i,
+        TheWorld: /TheWorld/i,
+        WeiboIntl: /WeiboIntl/i,
+        Weibo: /__weibo__/i,
+        NokiaBrowser: /NokiaBrowser/i,
+        Opera: /Opera|OPR\/(\d+[.\d]+)/i,
+        // eslint-disable-next-line no-useless-escape
+        Edge: /edg(?:e|ios|a)?\/([\w\.]+)/i,
+        QQLive: /QQLive(HD)?Browser/i,
+        Letv: /LetvClient/i,
+        Youku: /Youku/i,
+        IE: /Trident|MSIE/i,
+        TouTiao: /NewsArticle/i,
+        mobileLenovoBrowser: /MobileLenovoBrowser/i,
+        emulator: /qmzs$/i,
+        BaiduSpider: /Baiduspider/i, // 百度爬虫
+        YisouSpider: /YisouSpider/i, // 神马搜索引擎的爬虫
+        Quark: /Quark\//i, // 夸克浏览器
+        CoolMarket: /CoolMarket/i, // 酷安 app
+        Tieba: /tieba/i, // 贴吧 app
+        Zhihu_android: /ZhihuHybrid|zhihu/i, // 知乎 app
+        Bytedance: /BytedanceWebview|ByteLocale/i, // 抖音 app 内置 webview
+        Vivaldi: /Vivaldi/i, // Vivaldi浏览器
+        PPhongbao: /PPhongbao/i, // 多多红包
+        Facebook: /(?:FBAN\/|FB_IAB)/i,
+        Instagram: /instagram/i,
+        Tesla: /tesla/i,
+        Kindle: /kindle/i,
+        Line: /line\//i,
+      };
+
+      const nativeBrowser = {
+        // 系统原生浏览器，为了防止误判，尽量靠后，优先匹配第三方浏览器的特征
+        HuaweiBrowser: /HuaweiBrowser|huawei.*?Build\/huawei/i, // 华为浏览器
+        MZBrowser: /MZBrowser/i, // 魅族浏览器
+        VivoBrowser: /VivoBrowser/i, // vivo 浏览器
+        HeyTapBrowser: /HeyTapBrowser/i, // HeyTap浏览器，OPPO 旗下产品的
+        MiuiBrowser: /MiuiBrowser/i,
+      };
+
+      const fallbackBrowser = {
+        HeadlessChrome: /HeadlessChrome/i,
+        Electron: /electron/i,
+        Chrome: /Chrome|CriOS|CrMo/i,
+        Firefox: /Firefox|fxios/i,
+        iOSWebview: /like\sGecko\)\sMobile\/\w{3,}$/i,
+        Safari: /Version[|/]([\w.]+)(\s\w.+)?\s?Safari/i,
+        Chromium: /chromium/i,
+        AndroidBrowser:
+          /Android.*Mobile\sSafari|Android\/(\d[.\d]+)\sRelease\/(\d[.\d]+)\sBrowser\/AppleWebKit(\d[.\d]+)/i,
+      };
+
+      const browsers = {
+        ...brandBrowser,
+        ...nativeBrowser,
+        ...fallbackBrowser,
+      };
+
+      const isChromeBrowser = (ua) => {
+        return window.chrome || (is("iOS", ua) && is("Chrome", ua));
+      };
+
+      const isTapSDK = (ua) => {
+        return is("AndroidSDK", ua) || is("iOSSDK", ua);
+      };
+
+      const isTapClient = (request) => Boolean(/^V/.test(request?.get("x-ua")));
+
+      const isBot = (ua) => {
+        return UA(
+          /(bot(\b|\d)|spider|googlebot|yahoo|bingbot|baiduspider|yandex|yeti|yodaobot|gigabot|ia_archiver|facebookexternalhit|twitterbot|developers\.google\.com)/i,
+          ua
+        );
+      };
+
+      function getIOSVersion() {
+        const agent = window.navigator.userAgent,
+          start = agent.indexOf("OS ");
+        if (
+          (agent.indexOf("iPhone") > -1 || agent.indexOf("iPad") > -1) &&
+          start > -1
+        ) {
+          return window.Number(agent.substr(start + 3, 3).replace("_", "."));
+        }
+        return 0;
+      }
+
+      function getOperatingPlatform(ua) {
+        const isApple = UA(/(iPod|iPad|iPhone)/i, ua);
+        const isHuawei = UA(
+          /huawei|(Huawei[\s-_](\w*[-_]?\w*)|\s(7D-\w*|ALE-\w*|ATH-\w*|CHE-\w*|CHM-\w*|Che1-\w*|Che2-\w*|D2-\w*|G616-\w*|G620S-\w*|G621-\w*|G660-\w*|G750-\w*|GRA-\w*|Hol-\w*|MT2-\w*|MT7-\w*|PE-\w*|PLK-\w*|SC-\w*|SCL-\w*|H60-\w*|H30-\w*)[\s)])/i,
+          ua
+        );
+        const isHonor = UA(/honor/i, ua);
+        const isOppo = UA(
+          /oppo|(Oppo[\s-_](\w*)|\s(1100|1105|1107|3000|3005|3007|6607|A100|A103|A105|A105K|A109|A109K|A11|A113|A115|A115K|A121|A125|A127|A129|A201|A203|A209|A31|A31c|A31t|A31u|A51kc|A520|A613|A615|A617|E21W|Find|Mirror|N5110|N5117|N5207|N5209|R2010|R2017|R6007|R7005|R7007|R7c|R7t|R8000|R8007|R801|R805|R807|R809T|R8107|R8109|R811|R811W|R813T|R815T|R815W|R817|R819T|R8200|R8205|R8207|R821T|R823T|R827T|R830|R830S|R831S|R831T|R833T|R850|Real|T703|U2S|U521|U525|U529|U539|U701|U701T|U705T|U705W|X9000|X9007|X903|X905|X9070|X9077|X909|Z101|R829T)[\s)])/i,
+          ua
+        );
+        const isOppoR15 = UA(/pacm00/i, ua);
+        const isVivo = UA(
+          /(vivo[\s-_](\w*)|\s(E1\w?|E3\w?|E5\w?|V1\w?|V2\w?|S11\w?|S12\w?|S1\w?|S3\w?|S6\w?|S7\w?|S9\w?|X1\w?|X3\w?|X520\w?|X5\w?|X5Max|X5Max+|X5Pro|X5SL|X710F|X710L|Xplay|Xshot|Xpaly3S|Y11\w?|Y11i\w?|Y11i\w?|Y13\w?|Y15\w?|Y17\w?|Y18\w?|Y19\w?|Y1\w?|Y20\w?|Y22\w?|Y22i\w?|Y23\w?|Y27\w?|Y28\w?|Y29\w?|Y33\w?|Y37\w?|Y3\w?|Y613\w?|Y622\w?|Y627\w?|Y913\w?|Y923\w?|Y927\w?|Y928\w?|Y929\w?|Y937\w?)[\s)])/i,
+          ua
+        );
+        const isXiaomi = UA(/;\s(mi|m1|m2|m3|m4|hm)(\s*\w*)[\s)]/i, ua);
+        const isRedmi = UA(/redmi|build\/HM\d{0,7}|redmi\s?(\d+)?/i, ua);
+        const isSamsung = UA(
+          /[-\s](Galaxy[\s-_]nexus|Galaxy[\s-_]\w*[\s-_]\w*|Galaxy[\s-_]\w*|SM-\w*|GT-\w*|s[cgp]h-\w*|shw-\w*|ATIV|i9070|omnia|s7568|A3000|A3009|A5000|A5009|A7000|A7009|A8000|C101|C1116|C1158|E400|E500F|E7000|E7009|G3139D|G3502|G3502i|G3508|G3508J|G3508i|G3509|G3509i|G3558|G3559|G3568V|G3586V|G3589W|G3606|G3608|G3609|G3812|G388F|G5108|G5108Q|G5109|G5306W|G5308W|G5309W|G550|G600|G7106|G7108|G7108V|G7109|G7200|G720NO|G7508Q|G7509|G8508S|G8509V|G9006V|G9006W|G9008V|G9008W|G9009D|G9009W|G9198|G9200|G9208|G9209|G9250|G9280|I535|I679|I739|I8190N|I8262|I879|I879E|I889|I9000|I9060|I9082|I9082C|I9082i|I9100|I9100G|I9108|I9128|I9128E|I9128i|I9152|I9152P|I9158|I9158P|I9158V|I9168|I9168i|I9190|I9192|I9195|I9195I|I9200|I9208|I9220|I9228|I9260|I9268|I9300|I9300i|I9305|I9308|I9308i|I939|I939D|I939i|I9500|I9502|I9505|I9507V|I9508|I9508V|I959|J100|J110|J5008|J7008|N7100|N7102|N7105|N7108|N7108D|N719|N750|N7505|N7506V|N7508V|N7509V|N900|N9002|N9005|N9006|N9008|N9008S|N9008V|N9009|N9100|N9106W|N9108V|N9109W|N9150|N916|N9200|P709|P709E|P729|S6358|S7278|S7278U|S7562C|S7562i|S7898i|b9388)[\s)]/i,
+          ua
+        );
+        const isCoolpad = UA(
+          /(Coolpad[\s-_](\w*)|\s(7295C|7298A|7620L|8908|8085|8970L|9190L|Y80D)[\s)])/i,
+          ua
+        );
+        const isMeizu = UA(
+          /\s(mx\d*\w*|mz-(\w*))\s(\w*)\s*\w*\s*build|M463C|M35\d/i,
+          ua
+        );
+        const isHarmonyOS = /HarmonyOS/i.test(ua);
+
+        if (isApple) {
+          return "iOS";
+        } else if (isHarmonyOS) {
+          return "HarmonyOS";
+        } else if (isHuawei || isHonor) {
+          return "Huawei";
+        } else if (isOppo || isOppoR15) {
+          return "OPPO";
+        } else if (isVivo) {
+          return "VIVO";
+        } else if (isXiaomi || isRedmi) {
+          return "Xiaomi";
+        } else if (isSamsung) {
+          return "Samsung";
+        } else if (isCoolpad) {
+          return "Coolpad";
+        } else if (isMeizu) {
+          return "Meizu";
+        } else {
+          return "Other";
+        }
+      }
+
+      const getBrowserByStaticUA = (userAgent) => {
+        for (const i in browsers) {
+          if (browsers[i].test(userAgent)) {
+            return i;
+          }
+        }
+        return null;
+      };
+
+      function getBrowser(navigator) {
+        let browser = null;
+        const userAgentData = navigator.userAgentData;
+        if (userAgentData) {
+          userAgentData.brands.some(({ brand }) => {
+            for (const i in brandBrowser) {
+              if (browsers[i].test(brand)) {
+                browser = i;
+                return true;
+              }
+            }
+          });
+        }
+        if (!browser) {
+          browser = getBrowserByStaticUA(navigator.userAgent);
+        }
+        return browser;
+      }
+
+      function inTapClient() {
+        if (typeof window === "undefined") {
+          return false;
+        }
+        try {
+          if (window.urlResource && window.urlResource.TapTapAPI) {
+            return true;
+          }
+          if (window.TapTapAPI) {
+            return true;
+          }
+        } catch (e) {}
+        return false;
+      }
+
+      function getBrowserName(navigator) {
+        if (inTapClient()) {
+          return "InApp";
+        }
+        if (getBrowser(navigator)) {
+          return getBrowser(navigator);
+        }
+        return "Other";
+      }
+
+      window.onload = () => {
+        document.querySelector(".ua").textContent = navigator.userAgent;
+        document.querySelector(".browser_name").textContent = getBrowserName(
+          window.navigator
+        );
+      };
+    </script>
+    <style>
+      .item {
+        margin-bottom: 20px;
+      }
+      code {
+        background-color: rgba(0, 0, 0, 0.1);
+        border-radius: 3px;
+        padding: 3px 6px;
+        margin-left: 4px;
+      }
+    </style>
+    <div class="item">
+      <span>ua:</span>
+      <code class="ua"></code>
+    </div>
+    <div class="item">
+      <span>browser_name:</span>
+      <code class="browser_name"></code>
+    </div>
+  </body>
 </html>
